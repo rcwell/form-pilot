@@ -1,0 +1,27 @@
+{
+  "name": "form-pilot-kit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "genkit start -- npx tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@genkit-ai/express": "^1.13.0",
+    "@genkit-ai/firebase": "^1.13.0",
+    "@genkit-ai/googleai": "^1.13.0",
+    "dotenv": "^16.5.0",
+    "genkit": "^1.13.0",
+    "llm-chunk": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
