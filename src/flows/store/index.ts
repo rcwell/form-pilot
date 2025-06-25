@@ -1,11 +1,9 @@
 import { chunk } from "llm-chunk";
 import { ai, InputSchema, OutputSchema } from "../../ai";
-import {
-  convertJsonToDescriptiveText,
-  removeNoValueProperties,
-} from "../../utils.ts";
+import { objectToText, removeNoValueProperties } from "../../utils.ts";
 import { firestore, indexConfig } from "../../services/firebase.ts";
 import { FieldValue } from "firebase-admin/firestore";
+import { z } from "genkit";
 
 export const storeFlow = ai.defineFlow(
   {
@@ -22,7 +20,7 @@ export const storeFlow = ai.defineFlow(
       const formWithValues = removeNoValueProperties(form);
 
       const descriptive = await ai.run(`stringify : ${objectId}`, async () =>
-        convertJsonToDescriptiveText(formWithValues)
+        objectToText(formWithValues)
       );
 
       const chunks = await ai.run(`chunkify : ${objectId}`, async () =>
@@ -96,6 +94,52 @@ export const storeFlow = ai.defineFlow(
         message: "Something went wrong with saving the form.",
         success: false,
       };
+    }
+  }
+);
+
+export const deleteFlow = ai.defineFlow(
+  {
+    name: "deleteFlow",
+    inputSchema: z.object({
+      property: z.string(),
+      values: z.array(z.string()),
+    }),
+    outputSchema: z.boolean(),
+  },
+  async (input) => {
+    try {
+      await ai.run(`delete`, async () => {
+        input.values.forEach(async (id) => {
+          const batch = firestore.batch();
+          const vectorRef = await firestore
+            .collection(indexConfig.collection)
+            .where(
+              input.property === "objectId" ? "text" : input.property,
+              "==",
+              id
+            )
+            .get();
+          const rawRef = await firestore
+            .collection(indexConfig.rawCollection)
+            .where(input.property, "==", id)
+            .get();
+
+          vectorRef.forEach((doc) => {
+            batch.delete(doc.ref);
+          });
+
+          rawRef.forEach((doc) => {
+            batch.delete(doc.ref);
+          });
+
+          await batch.commit();
+        });
+      });
+
+      return true;
+    } catch {
+      return false;
     }
   }
 );

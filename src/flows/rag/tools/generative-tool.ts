@@ -14,7 +14,7 @@ export const generativeTool = ai.defineTool(
         prompt,
         model:googleAI.model('gemini-1.5-flash'),
         output: { format: "json" },
-        config: { temperature: 0.2 },
+        config: { temperature: 0.1 },
       });
 
       return {

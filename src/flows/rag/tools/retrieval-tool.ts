@@ -1,8 +1,7 @@
 import { z } from "zod";
-import fs from "fs";
 import { ai, InputSchema } from "../../../ai";
 import { firestore, indexConfig, retriever } from "../../../services/firebase";
-import { convertJsonToDescriptiveText } from "../../../utils.ts";
+import { objectToText, removeNoValueProperties } from "../../../utils.ts";
 
 export const retrievalTool = ai.defineTool(
   {
@@ -27,16 +26,18 @@ export const retrievalTool = ai.defineTool(
     // );
 
     // return relevantForms;
+    const formWithValues = removeNoValueProperties(currentForm)
+    const query = objectToText(formWithValues)
     const docs = await ai.retrieve({
       retriever: retriever,
-      query: convertJsonToDescriptiveText(currentForm.form),
+      query: query,
       options: {
         where: { domain: currentForm.domain },
       },
     });
 
     const chunkMatchWeight = 1;
-    const timestampWeight = 1;
+    const timestampWeight = 0.5;
 
     // Step 1: Get frequency and timestamp per form
     const entries: Record<string, { chunks: number; timestamp: number }> = {};

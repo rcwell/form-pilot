@@ -1,3 +1,5 @@
+import * as cheerio from "cheerio";
+
 const parse = (input: object) => {
   const maybe = input as { name?: string; data?: { root?: object } };
   return maybe?.name === "codeblock" && isObj(maybe?.data?.root)
@@ -67,6 +69,51 @@ const convertJsonToDescriptiveText = (
   return lines.filter((line) => line.trim() !== "").join("\n"); // Filter out empty lines
 };
 
+function extractPlainTextFromHtml(htmlString: string): string {
+  try {
+    const $ = cheerio.load(htmlString);
+    $("script, style").remove(); // Remove script and style elements
+    return $("body").text().trim(); // Get text from body and trim whitespace
+  } catch (error) {
+    console.warn(
+      "Error parsing HTML with cheerio, returning original string:",
+      error
+    );
+    return htmlString; // Fallback to original if cheerio fails (e.g., not valid HTML)
+  }
+}
+
+function valueToText(value: any): string {
+  if (typeof value === "string") {
+    // Check if it looks like HTML (simple check, not foolproof)
+    if (/<[a-z][\s\S]*>/i.test(value)) {
+      return extractPlainTextFromHtml(value);
+    }
+    return value;
+  } else if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  } else if (Array.isArray(value)) {
+    // Recursively convert array elements
+    return value.map((v) => valueToText(v)).join(", ");
+  } else if (typeof value === "object" && value !== null) {
+    // Recursively convert nested objects
+    return objectToText(value);
+  }
+  return ""; // Return empty string for null, undefined, or unsupported types
+}
+
+function objectToText(obj: { [key: string]: any }): string {
+  let textParts: string[] = [];
+  Object.entries(obj).forEach(([key, value]) => {
+    const parsedValue = valueToText(value);
+    if (parsedValue) {
+      // Only add if the parsed value is not empty
+      textParts.push(`${key}: ${parsedValue}`);
+    }
+  });
+  return textParts.join("\n"); // Join parts with newlines for readability by the model
+}
+
 export {
   schema,
   parse,
@@ -74,4 +121,5 @@ export {
   toCodeBlock,
   convertJsonToDescriptiveText,
   removeNoValueProperties,
+  objectToText,
 };
