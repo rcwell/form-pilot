@@ -1,3 +1,4 @@
+import googleAI from "@genkit-ai/googleai";
 import { ai, InputSchema, OutputSchema } from "../ai";
 
 export const formAnalyzerTool = ai.defineTool(
@@ -77,6 +78,7 @@ Return the following:
 
     const response = await ai.generate({
       prompt: prompt,
+      model: googleAI.model("gemini-1.5-flash"),
       output: { format: "json" },
       config: { temperature: 0.2 },
     });
