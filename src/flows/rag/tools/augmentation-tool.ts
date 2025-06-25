@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ai, InputSchema, PromptPartSchema, FormJsonSchema } from "../../../ai";
+import { removeNoValueProperties } from "../../../utils.ts";
 
 export const augmentationTool = ai.defineTool(
   {
@@ -13,6 +14,7 @@ export const augmentationTool = ai.defineTool(
     }),
   },
   async ({ currentForm, relevantForms, schema }) => {
+    const formWithValues = removeNoValueProperties(currentForm)
     const prompt = `You are an advanced **Form Field Synthesis Engine**.  
 Your primary objective is to analyze form data and generate a comprehensive, structured suggestion for a form's content.  
 You will be provided with:
@@ -29,7 +31,7 @@ You will be provided with:
    This JSON represents the form submission you need to improve or complete. Focus on its \`form\` object content.
    
    \`\`\`json
-   ${JSON.stringify(currentForm, null, 2)}
+   ${JSON.stringify(formWithValues, null, 2)}
    \`\`\`
 
 2. **Relevant Past Form Submissions (Contextual Examples):**  

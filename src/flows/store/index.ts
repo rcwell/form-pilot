@@ -1,6 +1,9 @@
 import { chunk } from "llm-chunk";
 import { ai, InputSchema, OutputSchema } from "../../ai";
-import { convertJsonToDescriptiveText } from "../../utils.ts";
+import {
+  convertJsonToDescriptiveText,
+  removeNoValueProperties,
+} from "../../utils.ts";
 import { firestore, indexConfig } from "../../services/firebase.ts";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -16,8 +19,10 @@ export const storeFlow = ai.defineFlow(
         .toString(36)
         .substring(2, 9)}`;
 
+      const formWithValues = removeNoValueProperties(form);
+
       const descriptive = await ai.run(`stringify : ${objectId}`, async () =>
-        convertJsonToDescriptiveText(form)
+        convertJsonToDescriptiveText(formWithValues)
       );
 
       const chunks = await ai.run(`chunkify : ${objectId}`, async () =>
@@ -77,7 +82,7 @@ export const storeFlow = ai.defineFlow(
           timestamp,
           objectId,
           domain,
-          form,
+          form: formWithValues,
         });
         await batch.commit();
       });

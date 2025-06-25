@@ -10,6 +10,20 @@ const schema = <T>(schema: T) => ({ schema });
 const toCodeBlock = (data: object) => `\`\`\`json
 ${stringify(data)}
 \`\`\``;
+const removeNoValueProperties = (data: any) => {
+  if (!isObj(data)) return data; // 0/''/undefined/null
+
+  const formWithValues = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    const cleaned = removeNoValueProperties(value);
+    if (Boolean(cleaned)) {
+      formWithValues[key] = cleaned;
+    }
+  });
+
+  return formWithValues;
+};
 
 const convertJsonToDescriptiveText = (
   jsonObject: any,
@@ -51,6 +65,13 @@ const convertJsonToDescriptiveText = (
   }
 
   return lines.filter((line) => line.trim() !== "").join("\n"); // Filter out empty lines
-}
+};
 
-export { schema, parse, stringify, toCodeBlock, convertJsonToDescriptiveText };
+export {
+  schema,
+  parse,
+  stringify,
+  toCodeBlock,
+  convertJsonToDescriptiveText,
+  removeNoValueProperties,
+};
