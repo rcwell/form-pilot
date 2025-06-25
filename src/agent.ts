@@ -1,6 +1,6 @@
 import { ai } from "./ai";
 import { InputSchema, OutputSchema } from "./ai/schema";
-import { invokeRag, invokeStore } from "./tools";
+import { formAnalyzerTool, invokeRag, invokeStore } from "./tools";
 import { schema } from "./utils.ts";
 
 export const pilotAgent = ai.definePrompt(
@@ -9,15 +9,12 @@ export const pilotAgent = ai.definePrompt(
     description: `Retrieves relevant past form submissions based on currentForm and returns a formatted form value suggestions.`,
     input: schema(InputSchema),
     output: schema(OutputSchema),
-    tools: [invokeRag, invokeStore],
+    tools: [formAnalyzerTool, invokeRag, invokeStore],
     system: `
 You are a control agent responsible for coordinating flows usage to handle input requests.
 
-{{#if schema}}
-Use \`invokeRag\` tool
-{{else}}
-Use \`invokeStore\` tool
-{{/if}}
+First, analyze the input using the \`formAnalyzerTool\` tool.
+If \`formAnalyzerTool\` output has \`schema\`, use \`invokeRag\` tool, else \`invokeStore\` tool.
 
 Then return desired output from tool's output
 
