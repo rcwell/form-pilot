@@ -48,15 +48,12 @@ Instructions:
 - Use existing values from currentForm
 - Fill missing fields using patterns from relevantForms
 - Ensure all fields match exactly those defined in the schema
-- **CRITICAL**: For any field whose value is identified as an HTML string (e.g., rich text content containing tags like \`<p>\`, \`<strong>\`, \`<em>\`), **PRESERVE THE HTML CONTENT EXACTLY AS FOUND**. Do NOT attempt to flatten, summarize, or strip HTML tags from these values. If a field from \`relevantForms\` or \`currentForm\` clearly contains HTML, maintain its string representation including all tags.
+- For any field whose value is identified as an HTML string (e.g., rich text content containing tags like \`<p>\`, \`<strong>\`, \`<em>\`), preserve the html content exactly as found. Do NOT attempt to flatten, summarize, or strip HTML tags from these values.
+- If a field from \`relevantForms\` or \`currentForm\` clearly contains HTML, maintain its string representation including all tags.
 
 3. Output Requirements:
 - Only include fields found in the schema (no extra fields)
-- HTML strings (e.g., rich text like <p> or <strong>) are allowed
-- ✅ **Preserve HTML:** Explicitly allow and **maintain** HTML strings in their original format where detected. Do not flatten or modify HTML content.
-
-{{## user}}
-- **CRITICAL**: For any field whose value is identified as an HTML string (e.g., rich text content containing tags like \`<p>\`, \`<strong>\`, \`<em>\`), **PRESERVE THE HTML CONTENT EXACTLY AS FOUND**. Do NOT attempt to flatten, summarize, or strip HTML tags from these values. If a field from \`relevantForms\` or \`currentForm\` clearly contains HTML, maintain its string representation including all tags.
+- HTML strings (e.g., rich text like \'<p>\' or \'<strong>\') are allowed
 `;
     return { text: prompt };
   }
