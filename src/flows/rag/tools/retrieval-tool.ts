@@ -11,21 +11,6 @@ export const retrievalTool = ai.defineTool(
     outputSchema: z.array(InputSchema),
   },
   async (currentForm) => {
-    // --- Simple Mock Retrieval Logic ---
-    // In a real RAG, you'd embed currentForm and query a vector database
-    // Here, we'll do a very basic filter by domain for demonstration.
-
-    // const raw = fs.readFileSync("./src/data/forms.jsonl", "utf-8");
-    // const forms: z.infer<typeof InputSchema>[] = raw
-    //   .split("\n")
-    //   .filter((line) => line.trim())
-    //   .map((line) => JSON.parse(line));
-
-    // const relevantForms = forms.filter(
-    //   (pastForm) => pastForm.domain === currentForm.domain
-    // );
-
-    // return relevantForms;
     const formWithValues = removeNoValueProperties(currentForm)
     const query = objectToText(formWithValues)
     const docs = await ai.retrieve({
@@ -45,7 +30,6 @@ export const retrievalTool = ai.defineTool(
       const [{ text: objectId = "" }, { text: ms = 0 }] = content;
 
       if (!entries[objectId]) {
-        // const timestamp = new Date(ts).getTime();
         entries[objectId] = {
           chunks: 0,
           timestamp: +ms,

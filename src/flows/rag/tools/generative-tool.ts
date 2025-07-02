@@ -1,4 +1,3 @@
-import googleAI from "@genkit-ai/googleai";
 import { ai, PromptPartSchema, OutputSchema } from "../../../ai";
 
 export const generativeTool = ai.defineTool(
@@ -12,9 +11,8 @@ export const generativeTool = ai.defineTool(
     try {
       const response = await ai.generate({
         prompt,
-        // model:googleAI.model('gemini-1.5-flash'), - faster but cannot handle HTML strings
         output: { format: "json" },
-        config: { temperature: 0.1 },
+        config: { temperature: 0.2 },
       });
 
       return {
